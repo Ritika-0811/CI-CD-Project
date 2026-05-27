@@ -31,8 +31,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./app
-          file: ./app/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: ${{ github.ref == 'refs/heads/main' }}   # only push on main
           tags: |
             ${{ env.IMAGE_NAME }}:latest
