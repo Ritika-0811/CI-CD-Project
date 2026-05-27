@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+  namespace: devops-demo
+  labels:
+    app: flask-app
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: flask-app
+        tier: backend
+    spec:
+      containers:
+        - name: flask-app
+          image: YOUR_DOCKERHUB_USERNAME/devops-demo-flask:latest   # replaced by CI/CD
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: "redis"          # matches the Redis Service name
+            - name: REDIS_PORT
+              value: "6379"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+
+          # ── Liveness Probe ──────────────────────────────────────────────────
+          # Kubernetes restarts the container if /health stops responding.
+          # Targets the lightweight /health endpoint that does NOT check Redis,
+          # so the container isn't killed just because Redis is temporarily down.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15   # give gunicorn time to bind
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 3
+
+          # ── Readiness Probe ─────────────────────────────────────────────────
+          # Traffic is only sent to a pod when /ready returns 200.
+          # /ready checks Redis connectivity, so a pod with a broken Redis
+          # connection is removed from the load balancer without being restarted.
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
