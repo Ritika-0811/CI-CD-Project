@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  IMAGE_NAME: ${{ secrets.ritika0811 }}/devops-demo-flask
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/devops-demo-flask
 
 jobs:
   # ── Job 1: Build & Push Docker Image ───────────────────────────────────────
