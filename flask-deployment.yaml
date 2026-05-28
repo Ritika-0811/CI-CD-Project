@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: flask-app
-          image: ritika0011/devops-demo-flask:latest   # replaced by CI/CD
+          image: ritika0811/devops-demo-flask:latest   # replaced by CI/CD
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
